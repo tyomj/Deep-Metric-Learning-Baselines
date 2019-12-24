@@ -232,7 +232,9 @@ def give_InShop_datasets(opt):
         dict of PyTorch datasets for training, testing (by query and gallery separation) and evaluation.
     """
     #Load train-test-partition text file.
-    data_info = np.array(pd.read_table(opt.source_path+'/Eval/list_eval_partition.txt', header=1, delim_whitespace=True))[1:,:]
+    #data_info = np.array(pd.read_table('/home/akozlov/df2/dataset/Eval/list_eval_partition2.txt', header=1, delim_whitespace=True))[1:,:]
+    data_info = np.array(pd.read_table('/home/artem-nb/Projects/prices_clustering/list_eval_partition.txt', header=1, delim_whitespace=True))[1:,:]
+    
     #Separate into training dataset and query/gallery dataset for testing.
     train, query, gallery   = data_info[data_info[:,2]=='train'][:,:2], data_info[data_info[:,2]=='query'][:,:2], data_info[data_info[:,2]=='gallery'][:,:2]
 
@@ -249,19 +251,19 @@ def give_InShop_datasets(opt):
     for img_path, key in train:
         if not key in train_image_dict.keys():
             train_image_dict[key] = []
-        train_image_dict[key].append(opt.source_path+'/'+img_path)
+        train_image_dict[key].append(img_path)
 
     query_image_dict    = {}
     for img_path, key in query:
         if not key in query_image_dict.keys():
             query_image_dict[key] = []
-        query_image_dict[key].append(opt.source_path+'/'+img_path)
+        query_image_dict[key].append(img_path)
 
     gallery_image_dict    = {}
     for img_path, key in gallery:
         if not key in gallery_image_dict.keys():
             gallery_image_dict[key] = []
-        gallery_image_dict[key].append(opt.source_path+'/'+img_path)
+        gallery_image_dict[key].append(img_path)
 
     ### Uncomment this if super-labels should be used to generate resp.datasets
     # super_train_image_dict, counter, super_assign = {},0,{}
@@ -381,6 +383,7 @@ class BaseTripletDataset(Dataset):
         #Convert image dictionary from classname:content to class_idx:content, because the initial indices are not necessarily from 0 - <n_classes>.
         self.image_dict    = {i:self.image_dict[key] for i,key in enumerate(self.avail_classes)}
         self.avail_classes = sorted(list(self.image_dict.keys()))
+        print(self.avail_classes)
 
         #Init. properties that are used when filling up batches.
         if not self.is_validation:
@@ -394,11 +397,13 @@ class BaseTripletDataset(Dataset):
         normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])
         transf_list = []
         if not self.is_validation:
-            transf_list.extend([transforms.RandomResizedCrop(size=224) if opt.arch=='resnet50' else transforms.RandomResizedCrop(size=227),
+            transf_list.extend([
+                transforms.Resize(size=(224,224)) if opt.arch=='resnet50' else transforms.Resize(size=(227,227)),
                                 transforms.RandomHorizontalFlip(0.5)])
         else:
-            transf_list.extend([transforms.Resize(256),
-                                transforms.CenterCrop(224) if opt.arch=='resnet50' else transforms.CenterCrop(227)])
+            transf_list.extend([
+                #transforms.Resize(256),
+                                transforms.Resize((224, 224)) if opt.arch=='resnet50' else transforms.Resize((227,227))])
 
         transf_list.extend([transforms.ToTensor(), normalize])
         self.transform = transforms.Compose(transf_list)

@@ -332,7 +332,7 @@ def evaluate_query_and_gallery_dataset(LOG, query_dataloader, gallery_dataloader
                 if not len(LOG.progress_saver['val']['Recall @ 1']) or recall_at_ks[0]>np.max(LOG.progress_saver['val']['Recall @ 1']):
                     #Save Checkpoint
                     aux.set_checkpoint(model, opt, LOG.progress_saver, LOG.prop.save_path+'/checkpoint.pth.tar')
-                    aux.recover_closest_inshop(query_feature_matrix_all, gallery_feature_matrix_all, query_image_paths, gallery_image_paths, LOG.prop.save_path+'/sample_recoveries.png')
+                    #aux.recover_closest_inshop(query_feature_matrix_all, gallery_feature_matrix_all, query_image_paths, gallery_image_paths, LOG.prop.save_path+'/sample_recoveries.png')
             #Update logs.
             LOG.log('val', LOG.metrics_to_log['val'], [epoch, np.round(time.time()-start), NMI, F1]+recall_at_ks)
 
@@ -380,7 +380,7 @@ def evaluate_multiple_datasets(LOG, dataloaders, model, opt, save=True, give_ret
                     if not len(LOG.progress_saver['val']['Set {} Recall @ 1'.format(i)]) or recall_at_ks[0]>np.max(LOG.progress_saver['val']['Set {} Recall @ 1'.format(i)]):
                         #Save Checkpoint for specific test set.
                         aux.set_checkpoint(model, opt, LOG.progress_saver, LOG.prop.save_path+'/checkpoint_set{}.pth.tar'.format(i+1))
-                        aux.recover_closest_one_dataset(feature_matrix_all, image_paths, LOG.prop.save_path+'/sample_recoveries_set{}.png'.format(i+1))
+                        #aux.recover_closest_one_dataset(feature_matrix_all, image_paths, LOG.prop.save_path+'/sample_recoveries_set{}.png'.format(i+1))
 
                 csv_data += [NMI, F1]+recall_at_ks
             print(result_str)
